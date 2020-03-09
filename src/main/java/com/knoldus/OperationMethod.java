@@ -5,8 +5,8 @@ import twitter4j.Status;
 import twitter4j.Twitter;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,10 +24,11 @@ public class OperationMethod {
         }
     }
 
-    List<Status> getLatestPost(Integer limit) {
+    List<Status> getLatestPost(Integer limit, Integer skip) {
 
-        try {
-            return queryResult.subList(0, limit);
+        try {System.out.println("here");
+            System.out.println(queryResult.subList(0, limit).stream().skip(skip).collect(Collectors.toList()));
+            return queryResult.subList(0, limit).stream().skip(skip).collect(Collectors.toList());
         } catch (Exception exception) {
             exception.printStackTrace();
         }
@@ -36,9 +37,9 @@ public class OperationMethod {
 
     List<Status> getOldestPost(Integer limit) {
         try {
-            List<Status> tempQueryResult=queryResult;
+            List<Status> tempQueryResult = queryResult;
             Collections.reverse(tempQueryResult);
-            tempQueryResult.subList(0,limit);
+            tempQueryResult.subList(0, limit);
 
         } catch (Exception exception) {
             exception.printStackTrace();
@@ -47,26 +48,60 @@ public class OperationMethod {
         return new ArrayList<>();
     }
 
-    List <Integer> NumberOfRetweets(){
+    List<Integer> NumberOfRetweets() {
         try {
-            List<Integer> listOfRetweet = queryResult.stream().map(Status::getRetweetCount).collect(Collectors.toList());
-             Collections.sort(listOfRetweet,Collections.reverseOrder());
-             return listOfRetweet;
+            return queryResult.stream().map(Status::getRetweetCount)
+                    .sorted(Collections.reverseOrder())
+                    .collect(Collectors.toList());
         } catch (Exception exception) {
             exception.printStackTrace();
         }
-     return new ArrayList<>();
- }
+        return new ArrayList<>();
+    }
 
-    List <Integer> NumberOfLikes(){
+    List<Integer> NumberOfLikes() {
         try {
             System.out.println(queryResult);
-            List<Integer> listOfRetweet = queryResult.stream().map(Status::getFavoriteCount).collect(Collectors.toList());
-            Collections.sort(listOfRetweet,Collections.reverseOrder());
+            List<Integer> listOfRetweet = queryResult.stream().map(Status::getFavoriteCount).sorted(Collections.reverseOrder()).collect(Collectors.toList());
             return listOfRetweet;
         } catch (Exception exception) {
             exception.printStackTrace();
         }
         return new ArrayList<>();
     }
+
+    List<Status> getStatusByDate(Date date) {
+        try {
+            System.out.println("here4");
+            System.out.println(queryResult.stream().filter(myDate -> myDate.getCreatedAt().getDate() == date.getDate()).collect(Collectors.toList()));
+            return queryResult.stream().filter(myDate -> myDate.getCreatedAt() == date).collect(Collectors.toList());
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+        return new ArrayList<>();
+
+
+    }
+
+    List<Status> getStatusByTimeInterval(Date date){
+        try {
+            System.out.println("here4");
+            System.out.println(queryResult.stream()
+                    .filter(myDate -> (myDate.getCreatedAt().getTime() - date.getTime()) == 900000)
+                    .collect(Collectors.toList()));
+
+            return queryResult.stream()
+                    .filter(myDate -> (date.getMinutes() -myDate.getCreatedAt().getMinutes()) == 15
+                            &&( date.getDay()-myDate.getCreatedAt().getDay() )==0
+                            && (date.getHours() - myDate.getCreatedAt().getHours()  )==0)
+                    .collect(Collectors.toList());
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+
 }
